@@ -8,40 +8,34 @@ import { ProductService } from '../service/product.service';
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.css']
 })
-export class ProductListComponent  implements OnInit{
+
+export class ProductListComponent implements OnInit {
   //todo: complete missing code..
-  products$: Observable<Product[]> = of([]);
 
-  filteredPrdouctSubject=new BehaviorSubject<Product[]>([]);
-  filterdProducts$=this.filteredPrdouctSubject.asObservable();
+  filterdProducts$:Observable<Product[]>=of([]);
+  products$:Observable<Product[]>=of([]);
+  
   addNewProduct=false;
-  constructor(private productService:ProductService){
-
-  }
+  constructor(public service:ProductService){}
   ngOnInit(): void {
-    this.getProducts();
+    this.loadProducts();
   }
-  getProducts(): void {
-    this.products$ = this.productService.getProducts();
-
-    // populate the filtered subject initially
-    this.products$.subscribe({
-      next: (data) => this.filteredPrdouctSubject.next(data),
-      error: () => this.filteredPrdouctSubject.next([]) // fallback in case of error
-    });
+  loadProducts(){
+    this.products$=this.service.getProducts();
+    this.filterdProducts$=this.products$;
   }
   searchProducts(e:any){
-    const searchText=e.target.value;
-    this.products$.pipe(
-      map(products=>products.filter((p)=>p.productName.toLowerCase().includes(searchText.toLowerCase())|| p.id.toString().includes(searchText)))
-    ).subscribe((data)=>this.filteredPrdouctSubject.next(data));
+    const serchTerm=e.target.value.toLowerCase();
+
+    this.filterdProducts$=this.products$.pipe(
+      map(products=>products.filter((p)=>p.productName.toLowerCase().includes(serchTerm)|| p.id.toString().includes(serchTerm)))
+    )
+
   }
- 
   addProduct(newProduct:Product){
-    this.productService.addProduct(newProduct).subscribe({
-    })
+    this.service.addProduct(newProduct).subscribe(
+    )
   }
- 
- 
- 
+
 }
+
